@@ -153,7 +153,7 @@ var AdminDialog = Class.extend({
 	// default options
 	defaults: {
 		url: null,
-		width: 744,
+		width: 784,
 		height: 'auto',
 		start_width: 744,
 		start_height: 480
@@ -259,7 +259,24 @@ var AdminDialog = Class.extend({
 	// customize destroy dialog behavior
 	destroy: function() {
 		this.uiDialog.dialog('destroy');
-	}
+    },
+
+    tabbify: function(translatable_fields) {
+        $.each(translatable_fields, function(idx, trans_field){
+            var _fields = $('.ui-dialog-content [class*='+trans_field+'_]');
+            if(_fields.length > 1) {
+                $(_fields).wrapAll('<div id="tabs-'+trans_field+'" />');
+                var tab_markup = '<ul>';
+                $.each(_fields, function(idx, _field){
+                    $(_field).attr('id', 'tabs-'+trans_field+'-'+idx);
+                    tab_markup += '<li><a href="#tabs-'+trans_field+'-'+idx+'">'+$(_field).find('label').text()+'</a></li>';
+                });
+                tab_markup += '</ul>';
+                $('#tabs-'+trans_field).prepend(tab_markup);
+                $('#tabs-'+trans_field).tabs();
+            }
+        });
+    }
 });
 
 // abstract class for a basic admin form dialog
@@ -1016,9 +1033,9 @@ Fiber.PageSelectDialog = AdminRESTDialog.extend({
 var ChangePageFormDialog = ChangeFormDialog.extend({
 
 	defaults: {
-		width: 325,
+		width: 830,
 		height: 'auto',
-		start_width: 325
+        start_width: 830
 	},
 
 	init_dialog: function() {
@@ -1058,7 +1075,12 @@ var ChangePageFormDialog = ChangeFormDialog.extend({
 				}
 			});
 		};
-	}
+	},
+
+    append_form: function() {
+        this._super();
+        this.tabbify(['field-name', 'field-title', 'field-description','field-url']);
+    }
 });
 
 
@@ -1166,7 +1188,7 @@ Fiber.move_page_content_item = function(page_content_item_url, before_page_conte
 		data: {
 			before_page_content_item_id: before_page_content_item_id,
 			block_name: block_name,
-			_method: 'PUT',
+			_method: 'PUT'
 		},
 		success: reloadPage
 	});
@@ -1276,7 +1298,12 @@ var ChangeContentItemFormDialog = ChangeFormDialog.extend({
 		this.admin_form.options.page_id = this.options.page_id;
 		this.admin_form.options.block_name = this.options.block_name;
 		this.admin_form.options.before_page_content_item_id = this.options.before_page_content_item_id;
-	}
+	},
+
+    append_form: function() {
+        this._super();
+        this.tabbify(['field-content']);
+    }
 });
 
 
@@ -1414,7 +1441,7 @@ var adminPage = {
 				data: {
 					target_node_id: info.target_node.id,
 					position: info.position,
-					_method: 'PUT',
+					_method: 'PUT'
 				},
 				success: function(data) {
 					reloadPage();
@@ -1794,11 +1821,13 @@ var adminPage = {
 		enhance_comboboxes($(document.body));
 		enhance_jsontextareas($(document.body));
 
-		var backend_toolbar = $('<div id="fiber-backend-toolbar"></div>');
-		var frontend_button = $('<p class="frontend"></p>').appendTo(backend_toolbar);
-		var link = $(document.createElement('a')).text(gettext('Frontend')).attr('href', '/').attr('title', gettext('Frontend')).appendTo(frontend_button);
-		$('<span class="icon"></span>').prependTo(link);
-		backend_toolbar.prependTo($('body'));
+        if(this.body_fiber_data.backend_toolbar) {
+            var backend_toolbar = $('<div id="fiber-backend-toolbar"></div>');
+            var frontend_button = $('<p class="frontend"></p>').appendTo(backend_toolbar);
+            var link = $(document.createElement('a')).text(gettext('Frontend')).attr('href', '/').attr('title', gettext('Frontend')).appendTo(frontend_button);
+            $('<span class="icon"></span>').prependTo(link);
+            backend_toolbar.prependTo($('body'));
+        }
 	},
 
 	init: function(body_fiber_data) {

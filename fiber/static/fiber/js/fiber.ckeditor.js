@@ -33,6 +33,7 @@ Fiber.enhance_textarea = function(textarea, auto_height) {
 		format_tags: window.CKEDITOR_CONFIG_FORMAT_TAGS || 'p;h2;h3;h4',
 		stylesSet: window.CKEDITOR_CONFIG_STYLES_SET || null,
 		toolbarCanCollapse: false,
+		height:350,
 		resize_maxWidth: 610,
 		baseFloatZIndex: 1100
 	});
