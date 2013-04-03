@@ -11,6 +11,8 @@ EXCLUDE_URLS = getattr(settings, 'FIBER_EXCLUDE_URLS', [])
 FILES_DIR = getattr(settings, 'FIBER_FILES_DIR', 'uploads/files')
 IMAGES_DIR = getattr(settings, 'FIBER_IMAGES_DIR', 'uploads/images')
 
+ADMIN_TOOLBAR = getattr(settings, 'FIBER_ADMIN_TOOLBAR', True)
+
 # MPTT_ADMIN_LEVEL_INDENT defaults to 30
 if not hasattr(settings, 'MPTT_ADMIN_LEVEL_INDENT'):
     settings.MPTT_ADMIN_LEVEL_INDENT = 30

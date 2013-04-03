@@ -7,7 +7,7 @@ from django.template import loader, RequestContext
 from django.utils.encoding import smart_unicode
 from django.utils import simplejson
 
-from .app_settings import LOGIN_STRING, EXCLUDE_URLS, EDITOR
+from .app_settings import LOGIN_STRING, EXCLUDE_URLS, EDITOR, ADMIN_TOOLBAR
 from .models import ContentItem, Page
 from .utils.import_util import import_element
 
@@ -61,16 +61,26 @@ class AdminPageMiddleware(object):
                 else:
                     if self.is_django_admin(request):
                         fiber_data['backend'] = True
+                        fiber_data['backend_toolbar'] = ADMIN_TOOLBAR
                     else:
+                        # pages_json and content_items_json are rather
+                        # static, cache aggressively.
+                        from django.core.cache import cache
+                        cache_key = 'fiber_admin_pane_pages_content_items_json'
+                        cached = cache.get(cache_key)
+                        if cached is None:
+                            cached = {
+                                'pages_json': simplejson.dumps(
+                                    Page.objects.create_jqtree_data(request.user)),
+                                'content_items_json': simplejson.dumps(
+                                    ContentItem.objects.get_content_groups(request.user))
+                            }
+
                         t = loader.get_template('fiber/admin.html')
                         c = RequestContext(request, {
                             'logout_url': self.get_logout_url(request),
-                            'pages_json': simplejson.dumps(
-                                Page.objects.create_jqtree_data(request.user)
-                            ),
-                            'content_items_json': simplejson.dumps(
-                                ContentItem.objects.get_content_groups(request.user)
-                            )
+                            'pages_json': cached['pages_json'],
+                            'content_items_json': cached['content_items_json']
                         })
 
                         # Inject admin html in body.

@@ -1,4 +1,6 @@
 import datetime
+from django.conf import settings
+from django.utils import translation
 import re
 
 from django.db import models
@@ -7,7 +9,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from mptt.managers import TreeManager
 
 from . import editor
-from .utils.urls import get_named_url_from_quoted_url
+from .utils.urls import get_named_url_from_quoted_url, is_redirect
 
 from .utils.class_loader import load_class
 from .app_settings import PERMISSION_CLASS
@@ -137,7 +139,7 @@ class PageManager(TreeManager):
             p._ancestors_retrieved = True
         return pages
 
-    def get_by_url(self, url):
+    def get_by_url(self, url, language=None):
         """
         Retrieve a page that matches the given URL.
         """
@@ -146,13 +148,38 @@ class PageManager(TreeManager):
         # for efficiency.
         qs = self.get_query_set()
 
-        # First check if there is a Page whose `url` matches the requested URL.
+        # First check if there is a Page whose `url` matches the requested
+        # URL, This is either a language specific url (using modeltranslation
+        # wrapper) or the plain url.
+        # first try users preferred language, then fallback language(s)
+        # then all other languages, then non-language specific version
+        # If a language specific page is found, activate that language
+        trylangs = []
         try:
-            return qs.get(url__exact=url)
-        except self.model.DoesNotExist:
+            validlangs = [sn for (sn, ln) in settings.LANGUAGES]
+            if language and language in validlangs:
+                trylangs = [language]
+                for fallback in settings.LANGUAGE_FALLBACKS.get(language, []):
+                    trylangs.append(fallback)
+            for lang in validlangs:
+                if lang not in trylangs:
+                    trylangs.append(lang)
+        except AttributeError:
             pass
 
-        # If no Page has been found, check a subset of Pages (whose `url` or
+        trylangs.append(None)
+        for lang in trylangs:
+            try:
+                fieldname = lang and ('url_{0}'.format(str(lang))) or 'url'
+                results = qs.filter(**{fieldname: url})
+                if len(results) > 0:
+                    if lang:
+                        translation.activate(lang)
+                    return results[0]
+            except self.model.DoesNotExist:
+                pass
+
+    # If no Page has been found, check a subset of Pages (whose `url` or
         # `relative_url` contain the rightmost part of the requested URL), to see
         # if their `get_absolute_url()` matches the requested URL entirely.
 
@@ -214,12 +241,16 @@ class PageManager(TreeManager):
 
         for page in queryset:
             page_info = dict(
-                label=page.title,
+                label=page.name or page.title,
                 id=page.id,
                 editable=page in editables_queryset
             )
 
             url = page.get_absolute_url()
+            if bool(page.redirect_page):
+                page_info['is_redirect'] = True
+            if is_redirect(page.url) is not None:
+                page_info['is_redirect'] = True
             if url:
                 # normal pages
                 page_info['url'] = url
@@ -228,7 +259,6 @@ class PageManager(TreeManager):
 
                 page_info['show_in_menu'] = page.show_in_menu
                 page_info['is_public'] = page.is_public
-                page_info['is_redirect'] = bool(page.redirect_page)
             else:
                 # root nodes / menu 'pages'
                 page_info['add_url'] = page.get_add_url()

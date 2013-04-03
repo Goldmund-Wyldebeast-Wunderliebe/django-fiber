@@ -34,6 +34,8 @@ class FiberTextField(models.TextField):
 
 class FiberMarkupField(FiberTextField):
     def pre_save(self, model_instance, add):
+        if getattr(model_instance, self.name) is None:
+            setattr(model_instance, self.name, '')
         value = super(FiberMarkupField, self).pre_save(model_instance, add)
 
         if editor.renderer:

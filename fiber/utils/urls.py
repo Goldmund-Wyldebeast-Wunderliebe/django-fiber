@@ -1,3 +1,4 @@
+import re
 from django.core.urlresolvers import reverse, NoReverseMatch
 
 
@@ -23,3 +24,8 @@ def get_named_url_from_quoted_url(quoted_url):
             return False
     else:
         return False
+
+
+extern_url_pattern = re.compile('^\w+://')
+def is_redirect(url):
+    return extern_url_pattern.match(url) and True

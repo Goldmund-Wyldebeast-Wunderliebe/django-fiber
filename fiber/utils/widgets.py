@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 class FiberTextarea(forms.Textarea):
 
     def render(self, name, value, attrs=None):
-        attrs['class'] = 'fiber-editor'
+        attrs['class'] = 'fiber-editor modeltranslation'
         return super(FiberTextarea, self).render(name, value, attrs)
 
 

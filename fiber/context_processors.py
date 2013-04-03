@@ -22,7 +22,10 @@ def page_info(request):
             if re.search(exclude_url, url.lstrip('/')):
                 return context
 
-    page = Page.objects.get_by_url(url)
+    try:
+        page = Page.objects.get_by_url(url, request.LANGUAGE_CODE)
+    except Exception:
+        page = Page.objects.get_by_url(url)
 
     """
     Block access to pages that the current user isn't supposed to see.
