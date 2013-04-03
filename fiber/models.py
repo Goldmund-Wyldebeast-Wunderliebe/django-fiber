@@ -1,3 +1,6 @@
+from django.core.cache import cache
+from django.http import HttpRequest
+from django.utils.cache import get_cache_key
 import os
 
 import warnings
@@ -38,6 +41,10 @@ class ContentItem(models.Model):
     class Meta:
         verbose_name = _('content item')
         verbose_name_plural = _('content items')
+
+    def cache_invalidator(self):
+        for page_content_item in self.page_content_items.all():
+            page_content_item.cache_invalidator()
 
     def __unicode__(self):
         if self.name:
@@ -91,6 +98,9 @@ class Page(MPTTModel):
     content_items = models.ManyToManyField(ContentItem, through='PageContentItem', verbose_name=_('content items'))
     metadata = JSONField(blank=True, null=True, schema=METADATA_PAGE_SCHEMA, prefill_from='fiber.models.Page')
 
+    name = models.CharField(_('name'), blank=True, max_length=255)
+    description = models.TextField(_('description of the page'), blank=True, null=True)
+
     tree = TreeManager()
     objects = load_class(PAGE_MANAGER)
 
@@ -98,6 +108,15 @@ class Page(MPTTModel):
         verbose_name = _('page')
         verbose_name_plural = _('pages')
         ordering = ('tree_id', 'lft')
+
+    def cache_invalidator(self):
+        request = HttpRequest()
+        request.path = self.get_absolute_url()
+        key = get_cache_key(request)
+        if cache.has_key(key):
+            cache.delete(key)
+        if cache.has_key('fiber_admin_pane_pages_content_items_json'):
+            cache.delete('fiber_admin_pane_pages_content_items_json')
 
     def __unicode__(self):
         return self.title
@@ -229,6 +248,9 @@ class PageContentItem(models.Model):
     block_name = models.CharField(_('block name'), max_length=255)
     sort = models.IntegerField(_('sort'), blank=True, null=True)
 
+    def cache_invalidator(self):
+        self.page.cache_invalidator()
+
     def save(self, *args, **kwargs):
         super(PageContentItem, self).save(*args, **kwargs)
         self.content_item.set_used_on_pages_json()
@@ -337,3 +359,16 @@ class File(models.Model):
 
     def get_filename(self):
         return os.path.basename(self.file.name)
+
+
+def page_cache_invalidator(sender, **kwargs):
+    kwargs['instance'].cache_invalidator()
+
+
+from django.db.models import signals
+signals.post_save.connect(page_cache_invalidator, sender=ContentItem)
+signals.pre_delete.connect(page_cache_invalidator, sender=ContentItem)
+signals.post_save.connect(page_cache_invalidator, sender=PageContentItem)
+signals.pre_delete.connect(page_cache_invalidator, sender=PageContentItem)
+signals.post_save.connect(page_cache_invalidator, sender=Page)
+signals.pre_delete.connect(page_cache_invalidator, sender=Page)
