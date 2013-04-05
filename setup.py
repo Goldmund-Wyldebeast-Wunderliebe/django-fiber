@@ -20,7 +20,8 @@ setup(
         'Pillow==1.7.8',
         'django-mptt==0.5.5',
         'django-compressor>=1.2',
-        'djangorestframework==2.1.17'
+        'djangorestframework==2.1.17',
+        'django-guardian==1.0.4'
     ],
 
     description='Django Fiber - a simple, user-friendly CMS for all your Django projects',

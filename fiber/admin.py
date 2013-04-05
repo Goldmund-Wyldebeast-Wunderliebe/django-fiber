@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.util import model_ngettext
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
+from guardian.admin import GuardedModelAdmin
 
 from mptt.admin import MPTTModelAdmin
 
@@ -96,7 +97,7 @@ class PageContentItemInline(UserPermissionMixin, admin.TabularInline):
     extra = 1
 
 
-class PageAdmin(UserPermissionMixin, MPTTModelAdmin):
+class PageAdmin(UserPermissionMixin, MPTTModelAdmin, GuardedModelAdmin):
 
     form = forms.PageForm
     fieldsets = (
