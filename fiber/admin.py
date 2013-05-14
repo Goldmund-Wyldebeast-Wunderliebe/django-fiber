@@ -120,7 +120,7 @@ class PageAdmin(UserPermissionMixin, MPTTModelAdmin, GuardedModelAdmin):
 
     form = forms.PageForm
     fieldsets = (
-        (None, {'fields': ('parent', 'title', 'url', 'redirect_page', 'template_name')}),
+        (None, {'fields': ('parent', 'name', 'title', 'description', 'url', 'redirect_page', 'template_name')}),
         (_('Advanced options'), {'classes': ('collapse',), 'fields': ('meta_description', 'mark_current_regexes', 'show_in_menu', 'is_public', 'protected',)}),
         (_('Metadata'), {'classes': ('collapse',), 'fields': ('metadata',)}),
     )
@@ -195,13 +195,13 @@ class FiberAdminPageAdmin(UserPermissionMixin, fiber_admin.MPTTModelAdmin):
         # remove template choices if there are no choices
         if len(TEMPLATE_CHOICES) == 0:
             self.fieldsets = (
-                (None, {'fields': ('title', 'url', )}),
+                (None, {'fields': ('name', 'title', 'url', 'description', )}),
                 (_('Advanced options'), {'fields': ('redirect_page', 'show_in_menu', 'is_public', )}),
                 (_('SEO'), {'fields': ('meta_description', )}),
             )
         else:
             self.fieldsets = (
-                (None, {'fields': ('title', 'url', )}),
+                (None, {'fields': ('name', 'title', 'url', 'description', )}),
                 (_('Advanced options'), {'fields': ('template_name', 'redirect_page', 'show_in_menu', 'is_public', )}),
                 (_('SEO'), {'fields': ('meta_description', )}),
             )
