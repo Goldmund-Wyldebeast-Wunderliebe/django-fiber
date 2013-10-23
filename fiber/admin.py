@@ -84,7 +84,7 @@ class ContentItemAdmin(UserPermissionMixin, admin.ModelAdmin):
     class Media:
         js = (
             '/static/modeltranslation/js/force_jquery.js',
-            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js',
+            '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js',
             '/static/modeltranslation/js/tabbed_translation_fields.js',
         )
         css = {
