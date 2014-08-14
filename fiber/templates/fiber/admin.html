@@ -13,8 +13,8 @@
 		<div id="df-sidebar-page-section">
 			<h2>{% trans "Pages" %}</h2>
 			<script>
-				window.fiber_page_data = {{ pages_json|safe }};
-				window.fiber_content_items_data = {{ content_items_json|safe }};
+				window.fiber_page_data = {% if pages_json %}{{ pages_json|safe }}{% else %}[]{% endif %};
+				window.fiber_content_items_data = {% if content_items_json %}{{ content_items_json|safe }}{% else %}[]{% endif %};
 			</script>
 			<div id="df-sidebar-page-tree" class="sidebar-tree"></div>
 		</div>
