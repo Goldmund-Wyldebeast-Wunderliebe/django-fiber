@@ -153,11 +153,7 @@ var AdminDialog = Class.extend({
 	// default options
 	defaults: {
 		url: null,
-<<<<<<< HEAD
 		width: 784,
-=======
-		width: 764,
->>>>>>> leukeleu/master
 		height: 'auto',
 		start_width: 764,
 		start_height: 480
