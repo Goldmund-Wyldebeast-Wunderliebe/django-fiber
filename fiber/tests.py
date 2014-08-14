@@ -1,12 +1,6 @@
 import re
 
-try:
-    # Django >= 1.4
-    from django.conf.urls import patterns, url
-except ImportError:
-    # Django 1.3
-    from django.conf.urls.defaults import patterns, url
-
+from django.conf.urls import patterns, url
 from django.views.generic import View
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -17,6 +11,7 @@ from django.core.exceptions import ValidationError
 from .models import ContentItem, Page, PageContentItem
 from .utils.validators import FiberURLValidator
 from .mixins import FiberPageMixin
+from .sitemaps import FiberSitemap
 
 
 def format_list(l, must_sort=True, separator=' '):
@@ -143,6 +138,7 @@ class PageTest(TestCase):
         Page.objects.create(title='xyz', parent_id=page_abc_id, url='xyz')
         page_def_id = Page.objects.create(title='def', parent_id=page_section2_id, url='/def/').id  # absolute url
         page_ghi_id = Page.objects.create(title='ghi', parent_id=page_section2_id, url='ghi').id
+        Page.objects.create(title='example', url='http://example.com')
 
         page_def = Page.objects.get(id=page_def_id)
         page_ghi = Page.objects.get(id=page_ghi_id)
@@ -216,6 +212,7 @@ class PageTest(TestCase):
         test_url('section1', '/section1/')
         test_url('abc', '/section1/abc/')
         test_url('def', '/def/')
+        test_url('example', 'http://example.com')
 
     def test_change_relative_url(self):
         # generate data
@@ -250,6 +247,46 @@ class PageTest(TestCase):
             ),
             '<p><a href="/section1/a_b_c/xyz/">xyz</a></p>'
         )
+
+    def test_unicode(self):
+        self.assertEqual(unicode(Page(title='abc')), 'abc')
+
+    def test_is_first_child(self):
+        # setup
+        self.generate_data()
+
+        # root page
+        self.assertTrue(Page.objects.get(title='home').is_first_child())
+
+        # first child
+        self.assertTrue(Page.objects.get(title='section1').is_first_child())
+
+        # second child
+        self.assertFalse(Page.objects.get(title='section2').is_first_child())
+
+    def test_is_is_last_child(self):
+        # setup
+        self.generate_data()
+
+        # root page
+        self.assertTrue(Page.objects.get(title='home').is_last_child())
+
+        # first child
+        self.assertFalse(Page.objects.get(title='section1').is_last_child())
+
+        # last child
+        self.assertTrue(Page.objects.get(title='section2').is_last_child())
+
+    def test_get_ancestors(self):
+        # setup
+        self.generate_data()
+        page_def = Page.objects.get(title='def')
+
+        # - get ancestors
+        self.assertEqual(format_list(page_def.get_ancestors()), 'home section2')
+
+        # - call again; expect 0 queries
+        self.assertNumQueries(0, lambda: page_def.get_ancestors())
 
 
 class PageContentItemTest(TestCase):
@@ -624,3 +661,70 @@ class TestFiberPageMixin(TestCase):
         self.assertEqual([self.aa, self.aaa], view.get_fiber_current_pages())
 
     # TODO write tests for `mark_current_regexes` behavior
+
+
+class TestContentItem(TestCase):
+    def test_unicode(self):
+        # with name
+        self.assertEqual(unicode(ContentItem(name='abc')), 'abc')
+
+        # without name, no content
+        self.assertEqual(unicode(ContentItem()), '[ EMPTY ]')
+
+        # without name, content length < 50
+        self.assertEqual(unicode(ContentItem(content_html='xyz')), 'xyz')
+
+        # without name, content length > 50
+        self.assertEqual(unicode(ContentItem(content_html='abcdefghij' * 6)), 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij...')
+
+    def test_get_add_url(self):
+        self.assertEqual(ContentItem.get_add_url(), '/admin/fiber/fiber_admin/fiber/contentitem/add/')
+
+    def test_get_change_url(self):
+        content_item1 = ContentItem.objects.create()
+
+        self.assertEqual(content_item1.get_change_url(), '/admin/fiber/fiber_admin/fiber/contentitem/%d/' % content_item1.id)
+
+    def test_used_on_pages_json(self):
+        # setup
+        page1 = Page.objects.create(title='p1', url='/abc/')
+        content_item1 = ContentItem.objects.create()
+        PageContentItem.objects.create(page=page1, content_item=content_item1)
+
+        # - call get_used_on_pages_json
+        self.assertEqual(
+            content_item1.get_used_on_pages_json(),
+            '[{"url": "/abc/", "title": "p1"}]'
+        )
+
+        # - load contentitem
+        content_item1 = ContentItem.objects.get(id=content_item1.id)
+        self.assertEqual(content_item1.used_on_pages_data, [dict(url='/abc/', title='p1')])
+
+class TestSitemap(TestCase):
+
+    def setUp(self):
+        """
+        Generate test data.
+        """
+        self.a = Page.objects.create(title='a')
+        self.aa = Page.objects.create(title='aa', parent=self.a, url='aa')
+
+    def test_sitemap_class(self):
+        """
+        Sitemap class should list the 2 test pages.
+        """
+
+        urls = FiberSitemap().get_urls()
+        self.assertEqual(len(urls), 2)
+
+    def test_public(self):
+        """
+        Only public pages go in the sitemap.
+        """
+
+        self.a.is_public = False
+        self.a.save()
+
+        urls = FiberSitemap().get_urls()
+        self.assertEqual(len(urls), 1)

@@ -1,16 +1,17 @@
-[![Travis build image][travis-build-image]][travis]
-
-[travis]: http://travis-ci.org/#!/ridethepony/django-fiber
+[travis-url]: http://travis-ci.org/#!/ridethepony/django-fiber
 [travis-build-image]: https://secure.travis-ci.org/ridethepony/django-fiber.png
 
+[pypi-url]: https://pypi.python.org/pypi/django-fiber/
+[pypi-image]: https://pypip.in/d/django-fiber/badge.png
+
+[coveralls-url]: https://coveralls.io/r/ridethepony/django-fiber
+[coveralls-image]: https://coveralls.io/repos/ridethepony/django-fiber/badge.png?branch=master
+
+[![Travis build image][travis-build-image]][travis-url]
+[![PyPi download count image][pypi-image]][pypi-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+
 # Django Fiber
-
----
-
-**Announcement**: We've upgraded to Django REST Framework 2. This means that if you want to use the latest
-Fiber and you use Django REST Framework 0.3.X or 0.4.X for your own project, you'll have to bite the bullet and upgrade your local REST Framework code.
-
----
 
 Do you want to see a Django Fiber screencast, to get a feel for what it can do for you? Check it out here:
 http://vimeo.com/ridethepony/django-fiber
@@ -23,7 +24,7 @@ Convinced? Want to use Django Fiber in your own Django project? Then follow the 
 
 ## Installation
 
-We're assuming you are using Django 1.3.x, 1.4 or 1.5.
+We're assuming you are using Django 1.4, 1.5 or 1.6.
 
     $ pip install django-fiber
 
@@ -32,10 +33,11 @@ We're assuming you are using Django 1.3.x, 1.4 or 1.5.
 
 These dependencies are automatically installed:
 
-    Pillow==1.7.8
-    django-mptt==0.5.5
-    django-compressor>=1.2
-    djangorestframework==2.1.17
+    Pillow==2.2.1
+    django-mptt==0.6.0
+    django_compressor==1.3
+    djangorestframework==2.3.8
+    easy-thumbnails==1.4
 
 
 ## Settings
@@ -58,6 +60,7 @@ These dependencies are automatically installed:
         'django.contrib.staticfiles',
         'mptt',
         'compressor',
+        'easy_thumbnails',
         'fiber',
         ...
     )
@@ -103,3 +106,5 @@ For further usage and configuration details take a look at our documentation pro
 See CHANGELOG.md for the latest changes.
 
 [changelog]: CHANGELOG.md
+
+[![Analytics](https://ga-beacon.appspot.com/UA-24341330-5/django-fiber/readme)](https://github.com/ridethepony/django-fiber)

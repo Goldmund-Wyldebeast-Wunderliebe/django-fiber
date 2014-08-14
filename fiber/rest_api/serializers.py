@@ -54,11 +54,12 @@ class FileSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = File
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', )
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     image_url = serializers.Field(source='image.url')
+    thumbnail_url = serializers.Field(source='thumbnail_url')
     filename = serializers.Field(source='get_filename')
     size = serializers.Field(source='get_size')
     can_edit = CanEditField()
@@ -66,7 +67,7 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
-        read_only_fields = ('created', 'updated')
+        read_only_fields = ('created', )
 
 
 class FiberPaginationSerializer(pagination.BasePaginationSerializer):

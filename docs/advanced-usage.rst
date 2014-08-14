@@ -32,13 +32,19 @@ These settings are optional (default values are shown):
     FIBER_METADATA_PAGE_SCHEMA = {}
     FIBER_METADATA_CONTENT_SCHEMA = {}
 
+    FIBER_AUTO_CREATE_CONTENT_ITEMS = False
+
     COMPRESS = [the opposite of DEBUG]
 
     API_RENDER_HTML = False  # If set to True, you must include 'djangorestframework' in INSTALLED_APPS as well
 
+    FIBER_IMAGE_PREVIEW = True  # If set to False, you don't need 'easy_thumbnails' in INSTALLED_APPS
+    FIBER_LIST_THUMBNAIL_OPTIONS = {'size': (111, 111)}
+    FIBER_DETAIL_THUMBNAIL_OPTIONS = {'size': (228, 228)}
 
-Set or override fiber_page in the view
-======================================
+
+Set or override fiber_page in a view
+====================================
 
 In this example, the news_item_detail view looks up the Page of the news_item_list by looking up its named URL. This way, you can reuse the content you have placed on the news_item_list Page for each news_item_detail Page.
 
@@ -57,8 +63,8 @@ In this example, the news_item_detail view looks up the Page of the news_item_li
         return HttpResponse(t.render(c))
 
 
-Set or override fiber_page in the classed based view
-====================================================
+Set or override fiber_page in a class based view
+================================================
 
 In this example, the NewsItemDetailView's context is enriched with fiber_page and fiber_current_pages.
 
@@ -161,7 +167,7 @@ Some default CKEditor config settings can be altered by creating a file called a
 
 Make sure 'appname' is placed _before_ 'fiber' in settings.INSTALLED_APPS, otherwise the admin-extra.js file won't override the default admin-extra.js provided by Django Fiber.
 
-Something like this should be placed in admin-extra.js:
+The following config settings can be used in admin-extra.js to override default CKEditor behavior:
 
 ::
 
@@ -169,6 +175,13 @@ Something like this should be placed in admin-extra.js:
     window.CKEDITOR_CONFIG_STYLES_SET = [
         { name: 'intro paragraph', element: 'p', attributes: { 'class': 'intro' } }
     ];
+    window.CKEDITOR_CONFIG_EXTRA_PLUGINS = 'fpagelink,ffilelink,fimagelink,fcustomlink,funlink,fimage,table,tabletools';
+    window.CKEDITOR_CONFIG_REMOVE_PLUGINS = 'scayt,language,menubutton,forms,image,link';
+    window.CKEDITOR_CONFIG_ALLOWED_CONTENT = false;
+    window.CKEDITOR_CONFIG_EXTRA_ALLOWED_CONTENT = 'a[*]{*}(*);img[*]{*}(*);iframe[*];object[*];param[*];embed[*]';
+    window.CKEDITOR_TOOLBAR_CAN_COLLAPSE = false;
+    window.CKEDITOR_CONFIG_MAX_WIDTH = 610;
+    window.CKEDITOR_BASE_FLOAT_Z_INDEX = 1100;
 
 You can also override the entire CKEditor toolbar, by setting the variable:
 
@@ -192,3 +205,7 @@ Here's an example module that implements object level permissions:
 
 .. literalinclude:: code-examples/permission_class.py
 
+Sitemap
+=======
+
+.. automodule:: fiber.sitemaps

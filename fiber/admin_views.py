@@ -1,8 +1,10 @@
+import json
+
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 
 from .models import Page
@@ -31,8 +33,8 @@ def fiber_login(request):
                 'status': 'failed',
                 'message': _('Please enter a correct username and password. Note that both fields are case-sensitive.'),
             }
-    json = simplejson.dumps(result)
-    return HttpResponse(json, mimetype='application/json')
+    json_reponse = json.dumps(result)
+    return HttpResponse(json_reponse, mimetype='application/json')
 
 
 @staff_member_required
@@ -44,7 +46,7 @@ def page_move_up(request, id):
         if previous_sibling_page:
             page.move_to(previous_sibling_page, position='left')
 
-    return HttpResponseRedirect('../../')
+    return HttpResponseRedirect(reverse('admin:fiber_page_changelist'))
 
 
 @staff_member_required
@@ -56,7 +58,7 @@ def page_move_down(request, id):
         if next_sibling_page:
             page.move_to(next_sibling_page, position='right')
 
-    return HttpResponseRedirect('../../')
+    return HttpResponseRedirect(reverse('admin:fiber_page_changelist'))
 
 
 @staff_member_required
@@ -65,7 +67,7 @@ def pages_json(request):
     Returns page tree as json. The data is suitable for jqtree.
     """
     return HttpResponse(
-        simplejson.dumps(
+        json.dumps(
             Page.objects.create_jqtree_data(request.user)
         )
     )

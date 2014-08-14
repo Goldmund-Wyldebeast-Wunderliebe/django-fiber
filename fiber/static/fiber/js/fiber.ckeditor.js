@@ -10,11 +10,11 @@ Fiber.enhance_textarea = function(textarea, auto_height) {
 
 	window.CKEDITOR_CONFIG_TOOLBAR = window.CKEDITOR_CONFIG_TOOLBAR || [
 		['Format'],
-		window.CKEDITOR_CONFIG_STYLES_SET ? ['Styles'] : null,
+		window.CKEDITOR_CONFIG_STYLES_SET ? ['Styles'] : '-',
 		['Bold','Italic'],
 		['NumberedList','BulletedList','Outdent','Indent'],
 		['fPageLink','fFileLink','fImageLink','fCustomLink','fUnlink'],
-		['fImage','fTable'],
+		['fImage','Table'],
 		['PasteText','PasteFromWord','RemoveFormat'],
 		['Maximize'],
 		['Source']
@@ -23,20 +23,22 @@ Fiber.enhance_textarea = function(textarea, auto_height) {
 	if (auto_height) {
 		CKEDITOR.config.height = window.innerHeight - (($('.ui-dialog').height() - $(textarea).height()) + 140);
 	}
-
+	
 	CKEDITOR.replace(textarea, {
-		skin: 'kama',
+		skin: 'moono',
 		language: LANGUAGE_CODE,
-		extraPlugins: 'fpagelink,ffilelink,fimagelink,fcustomlink,funlink,fimage,ftable,tabletools',
-		removePlugins: 'scayt,menubutton,forms,image,link',
+		extraPlugins: window.CKEDITOR_CONFIG_EXTRA_PLUGINS || 'fpagelink,ffilelink,fimagelink,fcustomlink,funlink,fimage,table,tabletools',
+		removePlugins: window.CKEDITOR_CONFIG_REMOVE_PLUGINS || 'scayt,language,menubutton,forms,image,link',
+		allowedContent: window.CKEDITOR_CONFIG_ALLOWED_CONTENT || false,
+		extraAllowedContent: window.CKEDITOR_CONFIG_EXTRA_ALLOWED_CONTENT || 'a[*]{*}(*);img[*]{*}(*);iframe[*];object[*];param[*];embed[*]',
 		toolbar: window.CKEDITOR_CONFIG_TOOLBAR,
 		format_tags: window.CKEDITOR_CONFIG_FORMAT_TAGS || 'p;h2;h3;h4',
 		stylesSet: window.CKEDITOR_CONFIG_STYLES_SET || null,
-		toolbarCanCollapse: false,
 		height:350,
-		resize_maxWidth: 610,
-		baseFloatZIndex: 1100
-	});
+		toolbarCanCollapse: window.CKEDITOR_TOOLBAR_CAN_COLLAPSE || false,
+		resize_maxWidth: window.CKEDITOR_CONFIG_MAX_WIDTH || 610,
+		baseFloatZIndex: window.CKEDITOR_BASE_FLOAT_Z_INDEX || 1100
+	});	
 };
 
 Fiber.remove_textarea = function(textarea) {
@@ -264,45 +266,6 @@ function extend_CKEditor() {
 				label: gettext('Image'),
 				command: 'fimage',
 				icon: STATIC_URL + 'fiber/images/ckeditor/icon-image.png'
-			});
-		}
-	});
-
-	// fTable
-	var ftableCmd = {
-		canUndo: false,
-		exec: function(editor) {
-
-			// insert a new table
-			editor.insertHtml('<table border="0" cellspacing="0" cellpadding="0">' +
-				'<thead>' +
-					'<tr>' +
-						'<th>column 1</th><th>column 2</th>' +
-					'</tr>' +
-				'</thead>' +
-				'<tbody>' +
-					'<tr>' +
-						'<td></td><td></td>' +
-					'</tr>' +
-					'<tr>' +
-						'<td></td><td></td>' +
-					'</tr>' +
-					'<tr>' +
-						'<td></td><td></td>' +
-					'</tr>' +
-				'</tbody>' +
-			'</table>');
-		}
-	};
-
-	// register plugin 'ftable'
-	CKEDITOR.plugins.add('ftable', {
-		init: function(editor) {
-			editor.addCommand('ftable', ftableCmd);
-			editor.ui.addButton('fTable', {
-				label: gettext('Table'),
-				command: 'ftable',
-				icon: STATIC_URL + 'fiber/images/ckeditor/icon-table.png'
 			});
 		}
 	});

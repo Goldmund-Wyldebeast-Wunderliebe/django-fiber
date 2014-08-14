@@ -17,11 +17,11 @@ setup(
     license='Apache License, Version 2.0',
 
     install_requires=[
-        'Pillow==1.7.8',
-        'django-mptt==0.5.5',
-        'django-compressor>=1.2',
-        'djangorestframework==2.1.17',
-        'django-guardian==1.0.4'
+        'Pillow>=2.2.1',
+        'django-mptt>=0.6.0',
+        'django_compressor>=1.3',
+        'djangorestframework>=2.3.8',
+        'easy-thumbnails>=1.4',
     ],
 
     description='Django Fiber - a simple, user-friendly CMS for all your Django projects',
