@@ -13,3 +13,12 @@ DATABASES = {
         'PORT': '',                              # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
+ANONYMOUS_USER_ID = 0
+
+LANGUAGES = ()
+LANGUAGE_FALLBACKS = ()

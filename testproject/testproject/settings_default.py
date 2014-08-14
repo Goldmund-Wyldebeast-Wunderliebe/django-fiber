@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'compressor',
     'easy_thumbnails',
     'south',
+    'guardian',
 
     # django
     'django.contrib.auth',
