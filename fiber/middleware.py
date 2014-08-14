@@ -75,7 +75,7 @@ class AdminPageMiddleware(object):
                             cached = {
                                 'pages_json': json.dumps(
                                     Page.objects.create_jqtree_data(request.user)),
-                                'content_items_json': simplejson.dumps(
+                                'content_items_json': json.dumps(
                                     ContentItem.objects.get_content_groups(request.user))
                             }
 
