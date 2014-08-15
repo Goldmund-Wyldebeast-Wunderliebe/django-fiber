@@ -101,9 +101,6 @@ class Page(MPTTModel):
     content_items = models.ManyToManyField(ContentItem, through='PageContentItem', verbose_name=_('content items'))
     metadata = JSONField(blank=True, null=True, schema=METADATA_PAGE_SCHEMA, prefill_from='fiber.models.Page')
 
-    name = models.CharField(_('name'), blank=True, max_length=255)
-    description = models.TextField(_('description of the page'), blank=True, null=True)
-
     tree = TreeManager()
     objects = load_class(PAGE_MANAGER)
 
