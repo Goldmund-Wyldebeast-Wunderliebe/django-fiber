@@ -2,25 +2,26 @@ from django.core.cache import cache
 from django.http import HttpRequest
 from django.utils.cache import get_cache_key
 import os
-
+import json
 import warnings
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.files.images import get_image_dimensions
 from django.db import models
 from django.utils.html import strip_tags
-from django.utils import simplejson
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
-from .app_settings import IMAGES_DIR, FILES_DIR, METADATA_PAGE_SCHEMA, METADATA_CONTENT_SCHEMA, \
-    PAGE_MANAGER, CONTENT_ITEM_MANAGER
+from .app_settings import (
+    IMAGES_DIR, FILES_DIR, METADATA_PAGE_SCHEMA, METADATA_CONTENT_SCHEMA,
+    PAGE_MANAGER, CONTENT_ITEM_MANAGER, LIST_THUMBNAIL_OPTIONS
+)
 from .utils.class_loader import load_class
 from .utils.fields import FiberURLField, FiberMarkupField, FiberHTMLField
+from .utils.images import get_thumbnail, get_thumbnail_url
 from .utils.json import JSONField
 from .utils.urls import get_named_url_from_quoted_url, is_quoted_url
 
@@ -78,7 +79,7 @@ class ContentItem(models.Model):
         if self.used_on_pages_data is None:
             self.set_used_on_pages_json()
 
-        return simplejson.dumps(self.used_on_pages_data)
+        return json.dumps(self.used_on_pages_data)
 
 
 class Page(MPTTModel):
@@ -305,7 +306,7 @@ class Image(models.Model):
     class Meta:
         verbose_name = _('image')
         verbose_name_plural = _('images')
-        ordering = ('image', )
+        ordering = ('-updated', )
 
     def __unicode__(self):
         return self.image.name
@@ -331,6 +332,22 @@ class Image(models.Model):
 
     def get_size(self):
         return '%s x %d' % (self.width, self.height)
+    get_size.short_description = _('Size')
+
+    def thumbnail(self):
+        return get_thumbnail(self.image, thumbnail_options=LIST_THUMBNAIL_OPTIONS)
+
+    def thumbnail_url(self):
+        return get_thumbnail_url(self.image, thumbnail_options=LIST_THUMBNAIL_OPTIONS)
+
+    def preview(self):
+        thumbnail = get_thumbnail(self.image, thumbnail_options=LIST_THUMBNAIL_OPTIONS)
+        if thumbnail:
+            return u'<img src="{0}" width="{1}" height="{2}" />'.format(thumbnail.url, thumbnail.width, thumbnail.height)
+        else:
+            return _('Not available')
+    preview.short_description = _('Preview')
+    preview.allow_tags = True
 
 
 class File(models.Model):
@@ -342,7 +359,7 @@ class File(models.Model):
     class Meta:
         verbose_name = _('file')
         verbose_name_plural = _('files')
-        ordering = ('file', )
+        ordering = ('-updated', )
 
     def __unicode__(self):
         return self.file.name
