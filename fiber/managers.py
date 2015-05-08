@@ -179,7 +179,7 @@ class PageManager(TreeManager):
         for lang in trylangs:
             try:
                 fieldname = lang and ('url_{0}'.format(str(lang))) or 'url'
-                results = qs.filter(**{fieldname: url})
+                results = queryset.filter(**{fieldname: url})
                 if len(results) > 0:
                     if lang:
                         translation.activate(lang)
