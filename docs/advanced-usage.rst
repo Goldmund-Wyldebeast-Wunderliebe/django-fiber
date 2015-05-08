@@ -32,6 +32,8 @@ These settings are optional (default values are shown):
     FIBER_METADATA_PAGE_SCHEMA = {}
     FIBER_METADATA_CONTENT_SCHEMA = {}
 
+    FIBER_AUTO_CREATE_CONTENT_ITEMS = False
+
     COMPRESS = [the opposite of DEBUG]
 
     API_RENDER_HTML = False  # If set to True, you must include 'djangorestframework' in INSTALLED_APPS as well
@@ -196,3 +198,7 @@ Here's an example module that implements object level permissions:
 
 .. literalinclude:: code-examples/permission_class.py
 
+Sitemap
+=======
+
+.. automodule:: fiber.sitemaps
