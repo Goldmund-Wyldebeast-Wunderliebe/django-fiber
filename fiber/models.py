@@ -115,11 +115,12 @@ class Page(MPTTModel):
     def cache_invalidator(self):
         request = HttpRequest()
         request.path = self.get_absolute_url()
-        key = get_cache_key(request)
-        if cache.has_key(key):
-            cache.delete(key)
-        if cache.has_key('fiber_admin_pane_pages_content_items_json'):
-            cache.delete('fiber_admin_pane_pages_content_items_json')
+        if 'SERVER_NAME' in request.META:
+            key = get_cache_key(request)
+            if cache.has_key(key):
+                cache.delete(key)
+            if cache.has_key('fiber_admin_pane_pages_content_items_json'):
+                cache.delete('fiber_admin_pane_pages_content_items_json')
 
     def __unicode__(self):
         return self.title
