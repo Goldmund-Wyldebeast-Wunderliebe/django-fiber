@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.deletion import ProtectedError
 from django.core.exceptions import PermissionDenied
 from guardian.admin import GuardedModelAdmin
+from modeltranslation.admin import TranslationAdmin
 
 from mptt.admin import MPTTModelAdmin
 
@@ -111,15 +112,15 @@ class ImageAdminWithPreview(ImageAdmin):
         return super(ImageAdminWithPreview, self).formfield_for_dbfield(db_field, **kwargs)
 
 
-class ContentItemAdmin(UserPermissionMixin, admin.ModelAdmin):
+class ContentItemAdmin(UserPermissionMixin, TranslationAdmin):
     class Media:
         js = (
-            '/static/modeltranslation/js/force_jquery.js',
-            '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js',
-            '/static/modeltranslation/js/tabbed_translation_fields.js',
+            'modeltranslation/js/force_jquery.js',
+            '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
+            'modeltranslation/js/tabbed_translation_fields.js',
         )
         css = {
-            'screen': ('/static/modeltranslation/css/tabbed_translation_fields.css',),
+            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
         }
 
     list_display = ('__unicode__', 'unused')
@@ -144,7 +145,7 @@ class PageContentItemInline(UserPermissionMixin, admin.TabularInline):
     extra = 1
 
 
-class PageAdmin(UserPermissionMixin, MPTTModelAdmin, GuardedModelAdmin):
+class PageAdmin(UserPermissionMixin, MPTTModelAdmin, GuardedModelAdmin, TranslationAdmin):
     class Media:
         js = (
             '/static/modeltranslation/js/force_jquery.js',
