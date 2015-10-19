@@ -48,13 +48,14 @@ class ContentItem(models.Model):
             page_content_item.cache_invalidator()
 
     def __unicode__(self):
-        if self.name:
-            return self.name
-        else:
-            contents = ' '.join(strip_tags(self.content_html).strip().split())
-            if len(contents) > 50:
-                contents = contents[:50] + '...'
-            return contents or ugettext('[ EMPTY ]')  # TODO: find out why ugettext_lazy doesn't work here
+        return self.name
+#        if self.name:
+#            return self.name
+#        else:
+#            contents = ' '.join(strip_tags(self.content_html).strip().split())
+#            if len(contents) > 50:
+#                contents = contents[:50] + '...'
+#            return contents or ugettext('[ EMPTY ]')  # TODO: find out why ugettext_lazy doesn't work here
 
     @classmethod
     def get_add_url(cls):
