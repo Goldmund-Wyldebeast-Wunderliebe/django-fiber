@@ -123,7 +123,7 @@ class ContentItemAdmin(UserPermissionMixin, TranslationAdmin):
             'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
         }
 
-    list_display = ('name', 'unused')
+    list_display = ('__unicode__', 'unused')
     form = forms.ContentItemAdminForm
     fieldsets = (
         (None, {'fields': ('name', get_editor_field_name('content_html'),)}),
