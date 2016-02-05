@@ -16,7 +16,9 @@ from fiber.utils.images import get_thumbnail, ThumbnailException
 class FiberTextarea(forms.Textarea):
 
     def render(self, name, value, attrs=None):
-        #attrs['class'] = 'fiber-editor modeltranslation'
+        if not attrs:
+            attrs = {}
+        attrs['class'] = 'fiber-editor mt-field-editor ' + attrs.get('class', '')
         return super(FiberTextarea, self).render(name, value, attrs)
 
 
