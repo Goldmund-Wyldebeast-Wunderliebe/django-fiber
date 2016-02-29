@@ -18,7 +18,7 @@ class FiberTextarea(forms.Textarea):
     def render(self, name, value, attrs=None):
         if not attrs:
             attrs = {}
-        attrs['class'] = 'fiber-editor mt-field-editor ' + attrs.get('class', '')
+        attrs['class'] = 'fiber-editor ' + attrs.get('class', '')
         return super(FiberTextarea, self).render(name, value, attrs)
 
 

@@ -205,7 +205,7 @@ class PageAdmin(UserPermissionMixin, MPTTModelAdmin, GuardedModelAdmin, Translat
     action_links.allow_tags = True
 
 
-class FiberAdminContentItemAdmin(UserPermissionMixin, fiber_admin.ModelAdmin):
+class FiberAdminContentItemAdmin(UserPermissionMixin, TranslationAdmin):
     list_display = ('__unicode__',)
     form = forms.ContentItemAdminForm
 
